@@ -5,7 +5,7 @@ const killTimers = new Map(); // Stocke les timers avec { targetId: { timeout, a
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("kira")
-    .setDescription("Attempts to kill someone after 60 seconds")
+    .setDescription("Write the name of the person you want to kill in your death note")
     .addUserOption((option) =>
       option
         .setName("target")
@@ -39,10 +39,28 @@ module.exports = {
     const time = interaction.options.getInteger("time") || 1;
 
     if (!target || target.bot) {
-      return interaction.editReply({
-        content: "invalid user !",
-        ephemeral: true,
-      });
+      const embed = new EmbedBuilder()
+        .setColor("DarkRed")
+        .setAuthor({
+          name: interaction.client.user.username,
+          iconURL: interaction.client.user.displayAvatarURL({ dynamic: true }),
+        })
+        .setDescription(
+          `${target.username} is an invalid target !`
+        )
+        .setTimestamp();
+      return interaction.editReply({ embeds: [embed] });
+    }
+    if (attacker.id === target.id) {
+      const embed = new EmbedBuilder()
+        .setColor("DarkRed")
+        .setAuthor({
+          name: interaction.client.user.username,
+          iconURL: interaction.client.user.displayAvatarURL({ dynamic: true }),
+        })
+        .setDescription(`You can't kill yourself !`)
+        .setTimestamp();
+      return interaction.editReply({ embeds: [embed] });
     }
 
     const attackerId = attacker.id;
@@ -60,68 +78,133 @@ module.exports = {
       const embedCounter = new EmbedBuilder()
         .setColor("DarkRed")
         .setAuthor({
-          name: attacker.username,
-          iconURL: attacker.displayAvatarURL({ dynamic: true }),
+          name: interaction.client.user.username,
+          iconURL: interaction.client.user.displayAvatarURL({ dynamic: true }),
         })
-        .setTitle("❌ Counter-attack!")
         .setDescription(
           `${attacker.username} wrote : \`${target.username} died of ${reason} in ${time} minutes\` in his death note !`
         )
         .setTimestamp();
 
+      const embedCountermp = new EmbedBuilder()
+        .setColor("DarkRed")
+        .setAuthor({
+          name: interaction.client.user.username,
+          iconURL: interaction.client.user.displayAvatarURL({ dynamic: true }),
+        })
+        .setDescription(
+          `You going to died in ${time} minutes because ${attacker.username} as counter the attack\n You can counter the attack with the command \`/kira\`\n But you have to find the attacker !`
+        )
+        .setTimestamp();
+
       await interaction.editReply({ embeds: [embedCounter] });
+      await target.send({ embeds: [embedCountermp] });
 
       // Nouveau timer contre l'attaquant initial
       const newTimeout = setTimeout(async () => {
         const embedKilled = new EmbedBuilder()
           .setColor("DarkRed")
-          .setAuthor({ name: target.username, iconURL: target.displayAvatarURL({ dynamic: true }) })
-          .setTitle("💀 Execution!")
+          .setAuthor({
+            name: interaction.client.user.username,
+            iconURL: interaction.client.user.displayAvatarURL({
+              dynamic: true,
+            }),
+          })
           .setDescription(
-            `${target.username} was died of ${reason} for ${time} minutes !`
+            `${target.username} died of ${reason} for ${time} minutes !`
           )
           .setTimestamp();
 
+        const embedKilledmp = new EmbedBuilder()
+          .setColor("DarkRed")
+          .setAuthor({
+            name: interaction.client.user.username,
+            iconURL: interaction.client.user.displayAvatarURL({
+              dynamic: true,
+            }),
+          })
+          .setDescription(`You are died of ${reason} for ${time} minutes`)
+          .setTimestamp();
+
         await interaction.followUp({ embeds: [embedKilled] });
+        await target.send({ embeds: [embedKilledmp] });
         killTimers.delete(targetId);
       }, time * 60000); // 60 secondes
 
       killTimers.set(targetId, { timeout: newTimeout, attackerId: attackerId });
 
 
-    } else {
+    } else if (!killTimers.has(targetId)) {
       // Aucun timer actif, on lance une attaque normale
       const embedStart = new EmbedBuilder()
         .setColor("DarkRed")
         .setAuthor({
-          name: attacker.username,
-          iconURL: attacker.displayAvatarURL({ dynamic: true }),
+          name: interaction.client.user.username,
+          iconURL: interaction.client.user.displayAvatarURL({ dynamic: true }),
         })
         .setDescription(
           `${attacker.username} wrote : \`${target.username} died of ${reason} in ${time} minutes\` in his death note !`
         )
         .setTimestamp();
 
+      const embedStartmp = new EmbedBuilder()
+        .setColor("DarkRed")
+        .setAuthor({
+          name: interaction.client.user.username,
+          iconURL: interaction.client.user.displayAvatarURL({ dynamic: true }),
+        })
+        .setDescription(
+          `You going to died in ${time} minutes\n You can counter the attack with the command \`/kira\`\n But you have to find the attacker !`
+        )
+        .setTimestamp();
+
       await interaction.editReply({ embeds: [embedStart] });
+      await target.send({ embeds: [embedStartmp] });
 
       const timeout = setTimeout(async () => {
         const embedExecuted = new EmbedBuilder()
           .setColor("DarkRed")
           .setAuthor({
-            name: target.username,
-            iconURL: target.displayAvatarURL({ dynamic: true }),
+            name: interaction.client.user.username,
+            iconURL: interaction.client.user.displayAvatarURL({
+              dynamic: true,
+            }),
           })
           .setTitle("💀 Execution!")
           .setDescription(
-            `${target.username} was died of ${reason} for ${time} minutes !`
+            `${target.username} died of ${reason} for ${time} minutes !`
           )
           .setTimestamp();
 
+        const embedExecutedmp = new EmbedBuilder()
+          .setColor("DarkRed")
+          .setAuthor({
+            name: interaction.client.user.username,
+            iconURL: interaction.client.user.displayAvatarURL({
+              dynamic: true,
+            }),
+          })
+          .setDescription(`You are died of ${reason} for ${time} minutes`)
+          .setTimestamp();
+
         await interaction.followUp({ embeds: [embedExecuted] });
+        await target.send({ embeds: [embedExecutedmp] });
         killTimers.delete(targetId);
       }, time * 60000); // 60 secondes
 
       killTimers.set(targetId, { timeout, attackerId });
+
+    } else {
+      const embedError = new EmbedBuilder()
+        .setColor("DarkRed")
+        .setAuthor({
+          name: interaction.client.user.username,
+          iconURL: interaction.client.user.displayAvatarURL({ dynamic: true }),
+        })
+        .setDescription("The target is already going to died !")
+        .setTimestamp();
+      
+      await interaction.editReply({ embeds: [embedError] });
     }
   },
 };
