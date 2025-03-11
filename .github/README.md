@@ -1,25 +1,24 @@
-# 🤖 Bot Discord - Djidjeyland  
+# 🤖 **Bot Discord - Kira**  
 
-Ce bot Discord a été conçu pour améliorer la gestion et l’ambiance du serveur **Djidjeyland**. Créé par **Minilan**, il offre des fonctionnalités utiles et engageantes pour rendre le serveur encore plus accueillant et dynamique.  
+Ce bot Discord a été conçu pour ajouter un peu de suspense et de stratégie aux serveurs. Créé par **Minilan**, ce bot unique vous plonge dans un univers où chaque action peut avoir des conséquences fatales.  
 
 ## 🌟 **À propos**  
 
-Spécialement développé pour répondre aux besoins du serveur **Djidjeyland**, ce bot combine utilité et convivialité. Il apporte des outils pratiques pour la modération tout en proposant des systèmes amusants pour animer la communauté.  
+Kira est un bot inspiré du célèbre **Death Note**, où les joueurs peuvent se tuer mutuellement dans un jeu psychologique caché. Chaque joueur peut **écrire le nom de quelqu'un pour le tuer**, mais attention, si la victime parvient à tuer l'attaquant avant de mourir, les rôles s'inversent et l'attaquant devient la victime ! Un jeu de rôle où **tout peut basculer** en un instant.  
 
 ## 🚀 **Fonctionnalités prévues**  
 
-- **🔨 Modération** : Commandes pour maintenir un environnement sain et gérer les membres facilement  
-- **💰 Économie virtuelle** : Système d’économie avec des récompenses pour encourager la participation et les interactions  
-- **🎲 Mini-jeux et animations** : Activités amusantes pour renforcer la cohésion et divertir les membres  
-- **📢 Notifications automatisées** : Diffusion des annonces et rappels importants  
-- **🧩 Autres outils pratiques** : À découvrir en explorant le bot !  
+- **💀 Système de kills** : Utilise la commande `/kira` pour cibler un joueur et le tuer dans un délai choisi, mais attention, une contre-attaque pourrait inverser les rôles  
+- **🌀 Rôles inversés** : Si un joueur tué parvient à tuer son attaquant avant sa propre mort, les rôles s'inversent et la victime devient l'attaquant  
+- **🍎 Économie virtuelle** : Récompenses en pommes pour les joueurs qui réussissent à tuer leurs cibles et éviter la contre-attaque  
+
 
 ## 🎯 **Objectifs du projet**  
 
-Créer un bot polyvalent et adapté à l’atmosphère unique de **Djidjeyland**, en mettant l’accent sur la gestion simplifiée et l’interaction communautaire. Ce projet vise à renforcer la vie du serveur tout en simplifiant son administration.  
+Créer une expérience de jeu immersive et engageante, inspirée de **Death Note**. Le but est de créer des moments excitants et dynamiques qui réservent des surprises à chaque instant !  
 
 ---
 
-🎮 *"Une gestion efficace et des fonctionnalités fun pour un serveur qui déchire !"*  
+🎮 *"Faites attention à qui vous défiez, car la mort peut être évitée... mais seulement si vous êtes plus malin que votre ennemi !"*  
 
 ### 👨‍💻 **Développé par Minilan**  
