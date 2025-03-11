@@ -40,7 +40,7 @@ module.exports = {
 
     if (!target || target.bot) {
       return interaction.editReply({
-        content: "Utilisateur invalide !",
+        content: "invalid user !",
         ephemeral: true,
       });
     }
