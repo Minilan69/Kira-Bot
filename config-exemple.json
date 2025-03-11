@@ -1,0 +1,14 @@
+{
+  "token": "Your Token",
+  "clientId": "Your Application ID",
+  "ready": {
+    "channel": "Salon où poster le message de ready",
+    "message": "Le bot a démarré à {time} le {date}",
+    "_readyMessageComment": "placeholder disponibles : {time} {date} {botName} - pour désactiver la fonctionnalité laisser le channel vide"
+  },
+  "log": {
+    "message": "[{date}][{time}][{prefix}][{label}]: {message}",
+    "_logMessageComment": "placeholder disponibles : {date} {time} {prefix} {label} {message}"
+  },
+  "ModLog" : "Moderation Log Channel ID"
+}
