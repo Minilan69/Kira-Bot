@@ -46,7 +46,7 @@ module.exports = {
           iconURL: interaction.client.user.displayAvatarURL({ dynamic: true }),
         })
         .setDescription(
-          `${target.username} is an invalid target !`
+          `${target} is an invalid target !`
         )
         .setTimestamp();
       return interaction.editReply({ embeds: [embed] });
@@ -82,7 +82,7 @@ module.exports = {
           iconURL: interaction.client.user.displayAvatarURL({ dynamic: true }),
         })
         .setDescription(
-          `${attacker.username} wrote : \`${target.username} died of ${reason} in ${time} minutes\` in his death note !`
+          `${attacker} wrote : \`${target.username} died of ${reason} in ${time} minutes\` in his death note !`
         )
         .setTimestamp();
 
@@ -93,7 +93,7 @@ module.exports = {
           iconURL: interaction.client.user.displayAvatarURL({ dynamic: true }),
         })
         .setDescription(
-          `You going to died in ${time} minutes because ${attacker.username} as counter the attack\n You can counter the attack with the command \`/kira\`\n But you have to find the attacker !`
+          `You going to died in ${time} minutes because ${attacker} as counter the attack\n You can counter the attack with the command \`/kira\`\n But you have to find the attacker !`
         )
         .setTimestamp();
 
@@ -111,7 +111,7 @@ module.exports = {
             }),
           })
           .setDescription(
-            `${target.username} died of ${reason} for ${time} minutes !`
+            `${target} died of ${reason} for ${time} minutes !`
           )
           .setTimestamp();
 
@@ -143,7 +143,7 @@ module.exports = {
           iconURL: interaction.client.user.displayAvatarURL({ dynamic: true }),
         })
         .setDescription(
-          `${attacker.username} wrote : \`${target.username} died of ${reason} in ${time} minutes\` in his death note !`
+          `${attacker} wrote : \`${target.username} died of ${reason} in ${time} minutes\` in his death note !`
         )
         .setTimestamp();
 
@@ -170,9 +170,8 @@ module.exports = {
               dynamic: true,
             }),
           })
-          .setTitle("💀 Execution!")
           .setDescription(
-            `${target.username} died of ${reason} for ${time} minutes !`
+            `${target} died of ${reason} for ${time} minutes !`
           )
           .setTimestamp();
 
