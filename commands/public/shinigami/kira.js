@@ -1,4 +1,5 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
+const { getUser } = require("../../../db/dbUtils");
 
 const killTimers = new Map(); // Stocke les timers avec { targetId: { timeout, attackerId } }
 
@@ -33,34 +34,27 @@ module.exports = {
   async execute(interaction) {
     await interaction.deferReply();
 
+    function embedinator (description) {
+      return new EmbedBuilder()
+        .setColor("DarkRed")
+        .setAuthor({
+          name: interaction.client.user.username,
+          iconURL: interaction.client.user.displayAvatarURL({ dynamic: true }),
+        })
+        .setDescription(description)
+        .setTimestamp();
+    }
+
     const attacker = interaction.user;
     const target = interaction.options.getUser("target");
     const reason = interaction.options.getString("reason") || "heart attack";
     const time = interaction.options.getInteger("time") || 1;
 
     if (!target || target.bot) {
-      const embed = new EmbedBuilder()
-        .setColor("DarkRed")
-        .setAuthor({
-          name: interaction.client.user.username,
-          iconURL: interaction.client.user.displayAvatarURL({ dynamic: true }),
-        })
-        .setDescription(
-          `${target} is an invalid target !`
-        )
-        .setTimestamp();
-      return interaction.editReply({ embeds: [embed] });
+      return interaction.editReply({embeds: [embedinator(`${target} is an invalid target !`)]});
     }
     if (attacker.id === target.id) {
-      const embed = new EmbedBuilder()
-        .setColor("DarkRed")
-        .setAuthor({
-          name: interaction.client.user.username,
-          iconURL: interaction.client.user.displayAvatarURL({ dynamic: true }),
-        })
-        .setDescription(`You can't kill yourself !`)
-        .setTimestamp();
-      return interaction.editReply({ embeds: [embed] });
+      return interaction.editReply({embeds: [embedinator(`You can't kill yourself !`)]});
     }
 
     const attackerId = attacker.id;
@@ -75,59 +69,16 @@ module.exports = {
       clearTimeout(killTimers.get(attackerId).timeout);
       killTimers.delete(attackerId);
 
-      const embedCounter = new EmbedBuilder()
-        .setColor("DarkRed")
-        .setAuthor({
-          name: interaction.client.user.username,
-          iconURL: interaction.client.user.displayAvatarURL({ dynamic: true }),
-        })
-        .setDescription(
-          `${attacker} wrote : \`${target.username} died of ${reason} in ${time} minutes\` in his death note !`
-        )
-        .setTimestamp();
-
-      const embedCountermp = new EmbedBuilder()
-        .setColor("DarkRed")
-        .setAuthor({
-          name: interaction.client.user.username,
-          iconURL: interaction.client.user.displayAvatarURL({ dynamic: true }),
-        })
-        .setDescription(
-          `You going to died in ${time} minutes because ${attacker} as counter the attack\n You can counter the attack with the command \`/kira\`\n But you have to find the attacker !`
-        )
-        .setTimestamp();
-
-      await interaction.editReply({ embeds: [embedCounter] });
-      await target.send({ embeds: [embedCountermp] });
+      await interaction.editReply({embeds: [embedinator(`${attacker} wrote : \`${target.username} going to died of ${reason} in ${time} minutes\` in his Death Note !`)]});
+      await attacker.send({embeds: [embedinator(`You have use your Death Note on ${target} to counter the attack\n He going to died of ${reason} in ${time} minutes !`)]});
+      await target.send({embeds: [embedinator(`Someone have use his Death Note on you\n You going to died in ${time} minutes\n You can counter the attack with the command \`/kira\`\n But you have to find the attacker !`)]});
 
       // Nouveau timer contre l'attaquant initial
       const newTimeout = setTimeout(async () => {
-        const embedKilled = new EmbedBuilder()
-          .setColor("DarkRed")
-          .setAuthor({
-            name: interaction.client.user.username,
-            iconURL: interaction.client.user.displayAvatarURL({
-              dynamic: true,
-            }),
-          })
-          .setDescription(
-            `${target} died of ${reason} for ${time} minutes !`
-          )
-          .setTimestamp();
 
-        const embedKilledmp = new EmbedBuilder()
-          .setColor("DarkRed")
-          .setAuthor({
-            name: interaction.client.user.username,
-            iconURL: interaction.client.user.displayAvatarURL({
-              dynamic: true,
-            }),
-          })
-          .setDescription(`You are died of ${reason} for ${time} minutes`)
-          .setTimestamp();
-
-        await interaction.followUp({ embeds: [embedKilled] });
-        await target.send({ embeds: [embedKilledmp] });
+        await interaction.followUp({embeds: [embedinator(`${target} died of ${reason} for ${time} minutes !`)]});
+        await attacker.send({embeds: [embedinator(`${target} died of ${reason} for ${time} minutes !`)]});
+        await target.send({embeds: [embedinator(`You are died of ${reason} for ${time} minutes`)]});
         killTimers.delete(targetId);
       }, time * 60000); // 60 secondes
 
@@ -136,74 +87,26 @@ module.exports = {
 
     } else if (!killTimers.has(targetId)) {
       // Aucun timer actif, on lance une attaque normale
-      const embedStart = new EmbedBuilder()
-        .setColor("DarkRed")
-        .setAuthor({
-          name: interaction.client.user.username,
-          iconURL: interaction.client.user.displayAvatarURL({ dynamic: true }),
-        })
-        .setDescription(
-          `${attacker} wrote : \`${target.username} died of ${reason} in ${time} minutes\` in his death note !`
-        )
-        .setTimestamp();
 
-      const embedStartmp = new EmbedBuilder()
-        .setColor("DarkRed")
-        .setAuthor({
-          name: interaction.client.user.username,
-          iconURL: interaction.client.user.displayAvatarURL({ dynamic: true }),
-        })
-        .setDescription(
-          `You going to died in ${time} minutes\n You can counter the attack with the command \`/kira\`\n But you have to find the attacker !`
-        )
-        .setTimestamp();
-
-      await interaction.editReply({ embeds: [embedStart] });
-      await target.send({ embeds: [embedStartmp] });
+      await interaction.editReply({embeds: [embedinator(`${attacker} wrote : \`${target.username} going to died of ${reason} in ${time} minutes\` in his Death Note !`)]});
+      await attacker.send({embeds: [embedinator(`You have use your Death Note on ${target}\n He going to died of ${reason} in ${time} minutes !`)]});
+      await target.send({embeds: [embedinator(`Someone have use his Death Note on you\n You going to died in ${time} minutes\n You can counter the attack with the command \`/kira\`\n But you have to find the attacker !`)]});
 
       const timeout = setTimeout(async () => {
-        const embedExecuted = new EmbedBuilder()
-          .setColor("DarkRed")
-          .setAuthor({
-            name: interaction.client.user.username,
-            iconURL: interaction.client.user.displayAvatarURL({
-              dynamic: true,
-            }),
-          })
-          .setDescription(
-            `${target} died of ${reason} for ${time} minutes !`
-          )
-          .setTimestamp();
 
-        const embedExecutedmp = new EmbedBuilder()
-          .setColor("DarkRed")
-          .setAuthor({
-            name: interaction.client.user.username,
-            iconURL: interaction.client.user.displayAvatarURL({
-              dynamic: true,
-            }),
-          })
-          .setDescription(`You are died of ${reason} for ${time} minutes`)
-          .setTimestamp();
-
-        await interaction.followUp({ embeds: [embedExecuted] });
-        await target.send({ embeds: [embedExecutedmp] });
+        await interaction.followUp({embeds: [embedinator(`${target} died of ${reason} for ${time} minutes !`)]});
+        await attacker.send({embeds: [embedinator(`${target} died of ${reason} for ${time} minutes !`)]});
+        await target.send({embeds: [embedinator(`You are died of ${reason} for ${time} minutes`)]});
         killTimers.delete(targetId);
       }, time * 60000); // 60 secondes
 
       killTimers.set(targetId, { timeout, attackerId });
 
+
     } else {
-      const embedError = new EmbedBuilder()
-        .setColor("DarkRed")
-        .setAuthor({
-          name: interaction.client.user.username,
-          iconURL: interaction.client.user.displayAvatarURL({ dynamic: true }),
-        })
-        .setDescription("The target is already going to died !")
-        .setTimestamp();
-      
-      await interaction.editReply({ embeds: [embedError] });
+  
+      await interaction.editReply({embeds: [embedinator("The target is already going to died !")]});
+
     }
   },
 };
