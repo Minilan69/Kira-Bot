@@ -1,14 +1,14 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
-const { getUser } = require("../../../db/dbUtils");
+const { getUser, updateIs_Dead } = require("../../../db/dbUtils");
 
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName("apple")
-    .setDescription("See your number of apples")
+    .setName("death_note")
+    .setDescription("See your death note")
     .addUserOption((option) =>
       option
         .setName("member")
-        .setDescription("The member that you want to see the number of apples")
+        .setDescription("The member that you want to see the death note")
         .setRequired(false)
     ),
 
@@ -32,7 +32,7 @@ module.exports = {
 
     try {
       const userdb = getUser(userId);
-      const apple = userdb.apple;
+      const death_note = userdb.death_note;
 
       if (userdb.timestamp > Date.now()) {
       return interaction.editReply({embeds: [embedinator(`You are **dead**, try in **${Math.ceil((userdb.timestamp - Date.now()) / 60000)}** minutes !`)]});
@@ -40,22 +40,32 @@ module.exports = {
       updateIs_Dead(userId, 0);
     }
 
-      let message;
+      let message = ``;
 
-      // Message
-
-      if (userId === interaction.user.id) {
-        message = `You have **${apple}** apples`;
+      if (Object.keys(death_note).length === 0) {
+        message += "No death note";
       } else {
-        message = `${user} has **${apple}** apples`;
+        // On crée un tableau de Promises pour récupérer tous les pseudos en parallèle
+        const promises = Object.keys(death_note).map(async (key) => {
+          const [victim_id, cause, time, is_kill] = death_note[key];
+          const victimUser = await interaction.client.users.fetch(victim_id);
+          return `\`${victimUser.username} is going to die of ${cause} in ${time} minutes\`\n`;
+        });
+
+        // On attend que toutes les Promises soient résolues
+        const results = await Promise.all(promises);
+        message += results.join("");
       }
+
 
       // Reply
       await interaction.editReply({ embeds: [embedinator(message)] });
     } catch (error) {
       // Error
       interaction.client.logger.error("Apple", error);
-      await interaction.editReply({ embeds: [embedinator("Impossible to have the number of apples")] });
+      await interaction.editReply({
+        embeds: [embedinator("Impossible to have the death note")],
+      });
     }
   },
 };

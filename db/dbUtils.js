@@ -6,7 +6,9 @@ db.exec(`
   CREATE TABLE IF NOT EXISTS users (
     id TEXT PRIMARY KEY,
     apple INTEGER DEFAULT 0,
-    is_dead INTEGER DEFAULT 0
+    kill_streak INTEGER DEFAULT 0,
+    is_dead INTEGER DEFAULT 0,
+    timestamp INTEGER DEFAULT 0
   );
 
   CREATE TABLE IF NOT EXISTS death_note (
@@ -25,8 +27,8 @@ db.exec(`
 // Create User
 function UserAdd(id) {
   const userStmt = db.prepare(`
-  INSERT OR IGNORE INTO users (id, apple, is_dead)
-  VALUES (?, 0, 0);`);
+  INSERT OR IGNORE INTO users (id, apple, kill_streak, is_dead, timestamp)
+  VALUES (?, 0, 0, 0, 0);`);
   userStmt.run(id);
 }
 
@@ -40,7 +42,7 @@ const dbUtils = {
   getUser: (id) => {
     UserAdd(id);
     const userStmt = db.prepare(`
-      SELECT u.id, u.apple, u.is_dead
+      SELECT u.id, u.apple, u.kill_streak, u.is_dead, u.timestamp
 
       FROM users u
       WHERE u.id = ?
@@ -73,30 +75,62 @@ const dbUtils = {
     updateStmt.run(newApple, id);
   },
 
+  // Kill_Streak Update
+  updateKill_Streak: (id, amount) => {
+    UserAdd(id);
+    const updateStmt = db.prepare(
+      "UPDATE users SET kill_streak = ? WHERE id = ?"
+    );
+    updateStmt.run(amount, id);
+  },
+
+  // Timestamp Update
+  updateTimestamp: (id, timestamp) => {
+    UserAdd(id);
+    const updateStmt = db.prepare(
+      "UPDATE users SET timestamp = ? WHERE id = ?"
+    );
+    updateStmt.run(timestamp, id);
+  },
+
   // Is_Dead Update
   updateIs_Dead: (id, is_dead) => {
     UserAdd(id);
-    const updateStmt = db.prepare("UPDATE users SET Is_Dead = ? WHERE id = ?");
+    const updateStmt = db.prepare("UPDATE users SET is_dead = ? WHERE id = ?");
     updateStmt.run(is_dead, id);
   },
 
   // Is_Kill Update
-  updateIs_Kill: (id, is_kill) => {
+  updateIs_Kill: (id, number, is_kill) => {
     UserAdd(id);
-    const updateStmt = db.prepare(`UPDATE death_note SET is_kill = ? WHERE user_id = ?`);
-    updateStmt.run(is_kill, id);
+    const updateStmt = db.prepare(`
+      UPDATE death_note 
+      SET is_kill = ? 
+      WHERE user_id = ? AND number = ?
+    `);
+    updateStmt.run(is_kill, id, number);
   },
 
   // Add Line In Death_Note
-  addDeath_Note: (user_id, victim_id, number, cause, time, is_kill) => {
+  addDeath_Note: (user_id, victim_id, cause, time) => {
     UserAdd(user_id);
     UserAdd(victim_id);
 
+    // Récupérer le dernier numéro pour cet utilisateur
+    const getLastNumberStmt = db.prepare(`
+      SELECT COALESCE(MAX(number), 0) AS last_number FROM death_note WHERE user_id = ?
+    `);
+    const { last_number } = getLastNumberStmt.get(user_id);
+
+    const new_number = last_number + 1;
+
+    // Insérer la nouvelle entrée avec le numéro incrémenté
     const addDeath_NoteStmt = db.prepare(`
       INSERT INTO death_note (user_id, victim_id, number, cause, time, is_kill)
-      VALUES (?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, 0)
     `);
-    addDeath_NoteStmt.run(user_id, victim_id, number, cause, time, is_kill);
+    addDeath_NoteStmt.run(user_id, victim_id, new_number, cause, time);
+    return new_number;
   },
 
   // Top
